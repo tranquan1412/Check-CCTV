@@ -34,7 +34,7 @@ async function fetchImageBuffer(url: string) {
 
   const arrayBuffer = await response.arrayBuffer()
   return {
-    buffer: Buffer.from(arrayBuffer),
+    buffer: new Uint8Array(arrayBuffer),
     extension: detectImageExtension(response.headers.get('content-type'), url),
   }
 }
