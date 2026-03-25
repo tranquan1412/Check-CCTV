@@ -133,8 +133,9 @@ export async function GET(request: Request) {
   })
 
   const buffer = await workbook.xlsx.writeBuffer()
+  const body = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer)
 
-  return new NextResponse(buffer as Buffer, {
+  return new NextResponse(body, {
     status: 200,
     headers: {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
