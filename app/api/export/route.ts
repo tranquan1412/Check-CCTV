@@ -33,8 +33,9 @@ async function fetchImageBuffer(url: string) {
   }
 
   const arrayBuffer = await response.arrayBuffer()
+  const base64 = Buffer.from(arrayBuffer).toString('base64')
   return {
-    buffer: new Uint8Array(arrayBuffer),
+    base64,
     extension: detectImageExtension(response.headers.get('content-type'), url),
   }
 }
@@ -97,7 +98,7 @@ export async function GET(request: Request) {
       try {
         const image = await fetchImageBuffer(row.evidence_image_url)
         const imageId = workbook.addImage({
-          buffer: image.buffer,
+          base64: `data:image/${image.extension};base64,${image.base64}`,
           extension: image.extension as 'png' | 'jpeg',
         })
 
