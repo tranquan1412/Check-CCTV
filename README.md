@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CCTV Inspection App
 
-## Getting Started
+Ứng dụng Next.js + Supabase để nhập liệu và kiểm tra CCTV theo 2 scope:
+- `general_check` (Kiểm tra chung)
+- `data_entry` (Nhập dữ liệu)
 
-First, run the development server:
+## Tính năng hiện có
+- Đăng nhập bằng Supabase Auth
+- Bảo vệ route bằng middleware
+- Bảng nhập liệu động: thêm dòng, xoá dòng, lưu hàng loạt
+- Upload ảnh evidence lên bucket `cctv-evidence`
+- Export Excel theo scope hiện tại
+- Thông báo UI bằng `sonner`
 
+## Cấu trúc dữ liệu hiện tại
+App hiện đang bám vào:
+- Table: `public.cctv_inspections`
+- Storage bucket: `cctv-evidence`
+
+Tham khảo chi tiết:
+- `docs/SUPABASE_SCHEMA.md`
+- `docs/UAT_CHECKLIST.md`
+- `docs/HARDENING_NOTES.md`
+
+## Chạy local
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mở http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Setup Supabase bắt buộc trước khi dùng
+Nếu app báo các lỗi như:
+- `Bucket not found`
+- `Could not find the table 'public.cctv_inspections'`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+thì cần chạy file sau trong **Supabase SQL Editor**:
+- `supabase/setup.sql`
 
-## Learn More
+File này sẽ tạo:
+- bảng `public.cctv_inspections`
+- bucket `cctv-evidence`
+- trigger `updated_at`
+- RLS policies cơ bản cho MVP
 
-To learn more about Next.js, take a look at the following resources:
+## Biến môi trường cần có
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Flow nghiệp vụ hiện tại
+1. Đăng nhập
+2. Vào `Kiểm tra chung` hoặc `Nhập dữ liệu`
+3. Thêm/sửa/xoá các dòng kiểm tra
+4. Upload ảnh bằng chứng nếu có
+5. Lưu dữ liệu
+6. Export Excel theo đúng scope hiện tại
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Next Step khuyến nghị
+1. Chạy UAT đầu-cuối với dữ liệu mẫu thật
+2. Xác nhận schema Supabase + required fields
+3. Verify RLS và storage policies
+4. Duyệt file Excel export với business user
+5. Gom các lỗi UI/UX cho refinement round
